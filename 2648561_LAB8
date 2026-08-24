@@ -1,0 +1,84 @@
+Demonstration of Import, Export, Dump, and Restore Operations in MongoDB
+
+# IMPORT INITIAL DATA
+
+mongoimport \
+--db farm_traceability \
+--collection trace_records \
+--file initial_trace_records.json \
+--jsonArray
+
+
+# APPEND ADDITIONAL DATA
+
+mongoimport \
+--db farm_traceability \
+--collection trace_records \
+--file additional_trace_records.json \
+--jsonArray
+
+mongosh:
+
+use farm_traceability
+
+// Total number of documents
+db.trace_records.countDocuments()
+
+// Sample document
+db.trace_records.findOne()
+
+// Display newly added records
+db.trace_records.find()
+
+Export:
+
+mongoexport \
+--db farm_traceability \
+--collection trace_records \
+--out trace_records_export.json
+
+Backup:
+
+mongodump \
+--db farm_traceability \
+--out backup/
+
+Delete/drop collection:
+
+use farm_traceability
+
+db.trace_records.drop()
+
+Restore:
+
+mongorestore \
+--db farm_traceability \
+backup/farm_traceability/
+
+Verify restoration:
+
+show dbs
+
+use farm_traceability
+
+show collections
+
+db.trace_records.countDocuments()
+
+db.trace_records.findOne()
+
+Index:
+
+db.trace_records.createIndex({
+    status: 1
+})
+
+db.trace_records.getIndexes()
+
+db.trace_records.find({
+    status: "Delivered"
+})
+
+db.trace_records.find({
+    status: "Delivered"
+}).explain("executionStats")
