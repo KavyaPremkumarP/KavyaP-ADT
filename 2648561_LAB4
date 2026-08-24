@@ -1,0 +1,79 @@
+Normalization
+
+-- NORMALIZED 3NF DESIGN
+
+CREATE TABLE Farmer (
+    Farmer_ID INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Phone VARCHAR(15),
+    Location VARCHAR(50),
+    Certification VARCHAR(50)
+);
+
+CREATE TABLE Product (
+    Product_ID INT PRIMARY KEY,
+    Product_Name VARCHAR(50),
+    Category VARCHAR(50),
+    Harvest_Date DATE,
+    Organic_Type VARCHAR(20),
+    Farmer_ID INT,
+    FOREIGN KEY (Farmer_ID)
+        REFERENCES Farmer(Farmer_ID)
+);
+
+CREATE TABLE Supplier (
+    Supplier_ID INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Contact_No VARCHAR(15),
+    Address VARCHAR(100)
+);
+
+CREATE TABLE Distributor (
+    Distributor_ID INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Contact_No VARCHAR(15),
+    Region VARCHAR(50)
+);
+
+CREATE TABLE Retailer (
+    Retailer_ID INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Contact_No VARCHAR(15),
+    Location VARCHAR(50)
+);
+
+CREATE TABLE Trace_Record (
+    Trace_ID INT PRIMARY KEY,
+    Date DATE,
+    Quantity INT,
+    Status VARCHAR(20),
+    Remarks VARCHAR(100),
+    Product_ID INT,
+    Distributor_ID INT,
+    Retailer_ID INT,
+    FOREIGN KEY (Product_ID)
+        REFERENCES Product(Product_ID),
+    FOREIGN KEY (Distributor_ID)
+        REFERENCES Distributor(Distributor_ID),
+    FOREIGN KEY (Retailer_ID)
+        REFERENCES Retailer(Retailer_ID)
+);
+
+-- JOIN RETRIEVAL
+
+SELECT
+    F.Name AS Farmer,
+    P.Product_Name,
+    D.Name AS Distributor,
+    R.Name AS Retailer,
+    T.Status,
+    T.Quantity
+FROM Trace_Record T
+JOIN Product P
+    ON T.Product_ID = P.Product_ID
+JOIN Farmer F
+    ON P.Farmer_ID = F.Farmer_ID
+JOIN Distributor D
+    ON T.Distributor_ID = D.Distributor_ID
+JOIN Retailer R
+    ON T.Retailer_ID = R.Retailer_ID;
