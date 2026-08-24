@@ -1,0 +1,131 @@
+Using the database developed for your selected application domain, implement and demonstrate the
+ACID properties of a transaction by performing a suitable transaction operation.
+
+-- ATOMICITY
+-- Successful Transaction
+
+START TRANSACTION;
+
+INSERT INTO Product
+VALUES (
+    44,
+    'Tomato',
+    'Vegetable',
+    '2026-07-01',
+    'Organic',
+    1
+);
+
+INSERT INTO TraceRecord
+VALUES (
+    100,
+    CURRENT_DATE,
+    100,
+    'Shipped',
+    'Fresh batch',
+    22,
+    202,
+    222
+);
+
+COMMIT;
+
+SELECT * FROM Product;
+
+SELECT * FROM TraceRecord;
+
+
+-- ROLLBACK - Failure Case
+
+START TRANSACTION;
+
+INSERT INTO Product
+VALUES (
+    55,
+    'Potato',
+    'Vegetable',
+    '2026-07-02',
+    'Organic',
+    2
+);
+
+INSERT INTO Trace_Record
+VALUES (
+    101,
+    CURRENT_DATE,
+    50,
+    'Shipped',
+    'Error case',
+    225,
+    202,
+    222
+);
+
+ROLLBACK;
+
+SELECT * FROM Product;
+
+SELECT * FROM Trace_Record;
+
+
+-- CONSISTENCY
+-- Invalid quantity demonstration
+
+INSERT INTO TraceRecord
+VALUES (
+    99,
+    CURRENT_DATE,
+    -10,
+    'Delivered',
+    'Invalid quantity',
+    22,
+    202,
+    222
+);
+
+
+-- ISOLATION
+
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
+START TRANSACTION;
+
+UPDATE TraceRecord
+SET Quantity = Quantity - 5
+WHERE Trace_ID = 775;
+
+SELECT *
+FROM TraceRecord;
+
+
+-- Transaction 2 / Read operation
+
+SELECT Quantity
+FROM TraceRecord
+WHERE Trace_ID = 775;
+
+
+-- DURABILITY
+
+START TRANSACTION;
+
+INSERT INTO TraceRecord
+VALUES (
+    88,
+    CURRENT_DATE,
+    50,
+    'Delivered',
+    'Final entry',
+    11,
+    101,
+    111
+);
+
+COMMIT;
+
+SELECT *
+FROM TraceRecord
+WHERE Trace_ID = 88;
+
+SELECT *
+FROM TraceRecord;
