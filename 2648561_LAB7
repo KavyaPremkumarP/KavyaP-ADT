@@ -1,0 +1,339 @@
+Demonstration of CRUD operations and Aggregate functions in MongoDB  With respect to your chosen business domain, create a MongoDB database and design  the required collections. Each collection should contain a minimum of 5 documents. 
+
+use ProductTraceability
+
+db.createCollection("farmers")
+db.createCollection("products")
+db.createCollection("suppliers")
+db.createCollection("distributors")
+db.createCollection("retailers")
+db.createCollection("trace_records")
+
+
+/* FARMER */
+
+db.farmers.insertOne({
+    farmer_id: 1,
+    farmer_name: "Ravi Kumar",
+    phone: "9876543210",
+    farmer_location: "Kerala",
+    certification: "Organic Certified"
+})
+
+db.farmers.insertMany([
+    {
+        farmer_id: 2,
+        farmer_name: "Kavya",
+        phone: "9123456789",
+        farmer_location: "Coimbatore",
+        certification: "Natural Farming"
+    },
+    {
+        farmer_id: 3,
+        farmer_name: "Umesh",
+        phone: "9988776655",
+        farmer_location: "Ooty",
+        certification: "Organic Certified"
+    },
+    {
+        farmer_id: 4,
+        farmer_name: "Arun",
+        phone: "9876500001",
+        farmer_location: "Mysore",
+        certification: "Natural Farming"
+    },
+    {
+        farmer_id: 5,
+        farmer_name: "Priya",
+        phone: "9876500002",
+        farmer_location: "Wayanad",
+        certification: "Organic Certified"
+    }
+])
+
+
+/* PRODUCT */
+
+db.products.insertOne({
+    product_id: 11,
+    product_name: "Wheat",
+    category: "Food",
+    harvest_date: "2026-05-10",
+    organic_type: "Organic",
+    farmer_id: 1
+})
+
+db.products.insertMany([
+    {
+        product_id: 11,
+        product_name: "Wheat",
+        category: "Food",
+        harvest_date: "2026-05-10",
+        organic_type: "Organic",
+        farmer_id: 1
+    },
+    {
+        product_id: 22,
+        product_name: "Milk",
+        category: "Dairy",
+        harvest_date: "2026-04-20",
+        organic_type: "Natural",
+        farmer_id: 2
+    },
+    {
+        product_id: 33,
+        product_name: "Tea Powder",
+        category: "Food",
+        harvest_date: "2026-06-01",
+        organic_type: "Organic",
+        farmer_id: 3
+    },
+    {
+        product_id: 44,
+        product_name: "Coffee",
+        category: "Beverage",
+        harvest_date: "2026-05-25",
+        organic_type: "Organic",
+        farmer_id: 4
+    },
+    {
+        product_id: 55,
+        product_name: "Rice",
+        category: "Food",
+        harvest_date: "2026-06-10",
+        organic_type: "Natural",
+        farmer_id: 5
+    }
+])
+
+
+/* SUPPLIER */
+
+db.suppliers.insertOne({
+    supplier_id: 6,
+    supplier_name: "ABC Supplier",
+    contact_no: "9012345678",
+    supplier_address: "Bangalore"
+})
+
+db.suppliers.insertMany([
+    {
+        supplier_id: 7,
+        supplier_name: "Fresh Supply",
+        contact_no: "9876501234",
+        supplier_address: "Coimbatore"
+    },
+    {
+        supplier_id: 8,
+        supplier_name: "Green Farm Supply",
+        contact_no: "9765432109",
+        supplier_address: "Chennai"
+    },
+    {
+        supplier_id: 9,
+        supplier_name: "Agro Supplier",
+        contact_no: "9654321000",
+        supplier_address: "Kochi"
+    },
+    {
+        supplier_id: 10,
+        supplier_name: "Nature Supply",
+        contact_no: "9543210000",
+        supplier_address: "Mysore"
+    }
+])
+
+
+/* DISTRIBUTOR */
+
+db.distributors.insertOne({
+    distributor_id: 101,
+    distributor_name: "Suresh",
+    contact_no: "9012345678",
+    distributor_region: "South"
+})
+
+
+/* RETAILER */
+
+db.retailers.insertOne({
+    retailer_id: 111,
+    retailer_name: "Super Store",
+    contact_no: "9345678901",
+    retailer_location: "Chennai"
+})
+
+
+/* READ */
+
+db.farmers.find()
+
+db.farmers.findOne({
+    farmer_id: 1
+})
+
+db.products.find()
+
+db.products.findOne()
+
+
+/* LOGICAL OPERATORS */
+
+db.products.find({
+    $and: [
+        { category: "Food" },
+        { organic_type: "Organic" }
+    ]
+})
+
+db.products.find({
+    $or: [
+        { category: "Food" },
+        { category: "Dairy" }
+    ]
+})
+
+db.products.find({
+    organic_type: {
+        $not: {
+            $eq: "Organic"
+        }
+    }
+})
+
+db.products.find({
+    $nor: [
+        { category: "Food" },
+        { category: "Dairy" }
+    ]
+})
+
+
+/* RELATIONAL OPERATORS */
+
+db.products.find({
+    quantity: { $gt: 50 }
+})
+
+db.products.find({
+    quantity: { $lt: 50 }
+})
+
+db.products.find({
+    quantity: { $eq: 50 }
+})
+
+db.products.find({
+    quantity: { $ne: 50 }
+})
+
+db.products.find({
+    quantity: { $gte: 50 }
+})
+
+db.products.find({
+    quantity: { $lte: 50 }
+})
+
+db.products.find({
+    product_id: { $in: [11, 22, 33] }
+})
+
+db.products.find({
+    product_id: { $nin: [11, 22, 33] }
+})
+
+
+/* UPDATE */
+
+db.products.updateOne(
+    { product_id: 11 },
+    {
+        $set: {
+            product_name: "Organic Wheat"
+        }
+    }
+)
+
+db.products.updateMany(
+    { category: "Food" },
+    {
+        $set: {
+            organic_type: "Organic"
+        }
+    }
+)
+
+
+/* DELETE */
+
+db.products.deleteOne({
+    product_id: 55
+})
+
+db.products.deleteMany({
+    category: "Beverage"
+})
+
+
+/* AGGREGATION */
+
+db.products.aggregate([
+    {
+        $match: {
+            category: "Food"
+        }
+    }
+])
+
+db.products.aggregate([
+    {
+        $group: {
+            _id: "$category",
+            total: {
+                $sum: 1
+            }
+        }
+    }
+])
+
+db.products.aggregate([
+    {
+        $group: {
+            _id: null,
+            average: {
+                $avg: "$quantity"
+            }
+        }
+    }
+])
+
+db.products.aggregate([
+    {
+        $count: "total_products"
+    }
+])
+
+db.products.aggregate([
+    {
+        $project: {
+            product_name: 1,
+            category: 1,
+            organic_type: 1
+        }
+    }
+])
+
+db.products.aggregate([
+    {
+        $sort: {
+            product_id: 1
+        }
+    }
+])
+
+db.products.aggregate([
+    {
+        $unwind: "$category"
+    }
+])
