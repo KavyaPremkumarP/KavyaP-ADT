@@ -1,0 +1,65 @@
+Simulate the Timestamp Ordering (TO) Concurrency Control Algorithm in y our
+respective business domain using any language, where multiple transactions access
+concurrently.
+
+class DataItem:
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+        self.read_ts = 0
+        self.write_ts = 0
+
+class Transaction:
+    def __init__(self, tid, timestamp):
+        self.tid = tid
+        self.timestamp = timestamp
+        self.active = True
+
+product_quantity = DataItem("Product_11_Quantity", 10)
+T1 = Transaction("Distributor_Update", 1)
+T2 = Transaction("Retailer_Update", 2)
+
+def read_item(T, X):
+    print(f"\n{T.tid} tries to READ {X.name}")
+    if T.timestamp < X.write_ts:
+        print(f"{T.tid} ABORTED (Too old to read)")
+        T.active = False
+    else:
+        X.read_ts = max(X.read_ts, T.timestamp)
+        print(f"{T.tid} reads value = {X.value}")
+
+def write_item(T, X, new_value):
+    print(f"\n{T.tid} tries to WRITE {X.name}")
+
+    if T.timestamp < X.read_ts:
+        print(f"{T.tid} ABORTED (Read conflict)")
+        T.active = False
+
+    elif T.timestamp < X.write_ts:
+        print(f"{T.tid} ABORTED (Write conflict)")
+        T.active = False
+
+    else:
+        X.value = new_value
+        X.write_ts = T.timestamp
+        print(f"{T.tid} writes new value = {X.value}")
+
+read_item(T1, product_quantity)
+write_item(T2, product_quantity, 5)
+write_item(T1, product_quantity, 8)
+read_item(T2, product_quantity)
+
+
+--- Simulation Start ---
+
+Distributor_Update tries to READ Product_11_Quantity
+Distributor_Update reads value = 10
+
+Retailer_Update tries to WRITE Product_11_Quantity
+Retailer_Update writes new value = 5
+
+Distributor_Update tries to WRITE Product_11_Quantity
+Distributor_Update ABORTED (Write conflict)
+
+Retailer_Update tries to READ Product_11_Quantity
+Retailer_Update reads value = 5
