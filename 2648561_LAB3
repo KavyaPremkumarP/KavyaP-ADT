@@ -1,1 +1,163 @@
 Data Retrieval using JOINS, Subqueries and Correlated queries
+
+Table Creation
+CREATE TABLE Farmer (
+    Farmer_ID INT PRIMARY KEY,
+    Name VARCHAR(50) NOT NULL,
+    Phone VARCHAR(15) UNIQUE,
+    Location VARCHAR(50),
+    Certification VARCHAR(50)
+);
+
+CREATE TABLE Product (
+    Product_ID INT PRIMARY KEY,
+    Product_Name VARCHAR(50) NOT NULL,
+    Category VARCHAR(50),
+    Harvest_Date DATE,
+    Organic_Type VARCHAR(20),
+    Farmer_ID INT,
+    FOREIGN KEY (Farmer_ID) REFERENCES Farmer(Farmer_ID)
+);
+
+CREATE TABLE Supplier (
+    Supplier_ID INT PRIMARY KEY,
+    Name VARCHAR(50) NOT NULL,
+    Contact_No VARCHAR(15),
+    Address VARCHAR(100)
+);
+
+CREATE TABLE Distributor (
+    Distributor_ID INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Contact_No VARCHAR(15),
+    Region VARCHAR(50)
+);
+
+CREATE TABLE Retailer (
+    Retailer_ID INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Contact_No VARCHAR(15),
+    Location VARCHAR(50)
+);
+
+CREATE TABLE Trace_Record (
+    Trace_ID INT PRIMARY KEY,
+    Date DATE DEFAULT (CURRENT_DATE),
+    Quantity INT CHECK (Quantity > 0),
+    Status VARCHAR(20),
+    Remarks VARCHAR(100),
+    Product_ID INT,
+    Distributor_ID INT,
+    Retailer_ID INT,
+    FOREIGN KEY (Product_ID) REFERENCES Product(Product_ID),
+    FOREIGN KEY (Distributor_ID) REFERENCES Distributor(Distributor_ID),
+    FOREIGN KEY (Retailer_ID) REFERENCES Retailer(Retailer_ID)
+);
+
+JOIN Operations
+-- INNER JOIN
+
+SELECT P.Product_Name, T.Status
+FROM Product P
+INNER JOIN Trace_Record T
+ON P.Product_ID = T.Product_ID;
+
+
+-- LEFT JOIN
+
+SELECT P.Product_Name, T.Trace_ID
+FROM Product P
+LEFT JOIN Trace_Record T
+ON P.Product_ID = T.Product_ID;
+
+
+-- RIGHT JOIN
+
+SELECT R.Name, T.Product_ID
+FROM Trace_Record T
+RIGHT JOIN Retailer R
+ON T.Retailer_ID = R.Retailer_ID;
+
+
+-- FULL OUTER JOIN
+
+SELECT D.Name, R.Name
+FROM Distributor D
+LEFT JOIN Trace_Record T
+ON D.Distributor_ID = T.Distributor_ID
+LEFT JOIN Retailer R
+ON T.Retailer_ID = R.Retailer_ID
+
+UNION
+
+SELECT D.Name, R.Name
+FROM Distributor D
+RIGHT JOIN Trace_Record T
+ON D.Distributor_ID = T.Distributor_ID
+RIGHT JOIN Retailer R
+ON T.Retailer_ID = R.Retailer_ID;
+
+Subqueries
+-- 1. Products NOT Delivered
+
+SELECT Product_Name
+FROM Product
+WHERE Product_ID NOT IN (
+    SELECT Product_ID
+    FROM Trace_Record
+);
+-- 2. Distributor Handling MAX Products
+
+SELECT Distributor_ID
+FROM Trace_Record
+WHERE Quantity = (
+    SELECT MAX(Quantity)
+    FROM Trace_Record
+);
+-- 3. Farmers whose products are actually distributed
+
+SELECT Name
+FROM Farmer
+WHERE Farmer_ID IN (
+    SELECT Farmer_ID
+    FROM Product
+    WHERE Product_ID IN (
+        SELECT Product_ID
+        FROM Trace_Record
+    )
+);
+-- 4. Latest Transaction
+
+SELECT *
+FROM Trace_Record T1
+WHERE Date = (
+    SELECT MAX(Date)
+    FROM Trace_Record T2
+    WHERE T1.Product_ID = T2.Product_ID
+);
+-- 5. Products with above average Quantity
+
+SELECT Product_ID, Quantity
+FROM Trace_Record
+WHERE Quantity > (
+    SELECT AVG(Quantity)
+    FROM Trace_Record
+);
+
+Compound SQL Query
+SELECT
+    F.Name AS Farmer,
+    P.Product_Name,
+    T.Quantity,
+    T.Status,
+    D.Name AS Distributor,
+    R.Name AS Retailer
+FROM Farmer F
+JOIN Product P
+    ON F.Farmer_ID = P.Farmer_ID
+LEFT JOIN Trace_Record T
+    ON P.Product_ID = T.Product_ID
+LEFT JOIN Distributor D
+    ON T.Distributor_ID = D.Distributor_ID
+LEFT JOIN Retailer R
+    ON T.Retailer_ID = R.Retailer_ID;
